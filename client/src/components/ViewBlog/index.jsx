@@ -19,6 +19,27 @@ const ViewBlog = ({ fetchBlogs, blogData }) => {
   //   }, 10000);
   //   return () => clearInterval(interval);
   // }, []);
+
+  const deleteblog = (id) => {
+    axios
+      .delete(`http://localhost:5000/blogs/${id}`)
+      .then(() => {
+        fetchBlogs();
+      })
+      .catch((error) => console.log(error));
+  };
+  const updateBlog = (id) => {
+    axios
+      .get(`http://localhost:5000/blogs/${id}`)
+      .then((doc) => {
+        doc.data.message.likes += 1;
+        console.log(doc.data.message);
+        axios
+          .patch(`http://localhost:5000/blogs/${id}`, doc.data.message)
+          .then(() => fetchBlogs());
+      })
+      .catch((error) => console.log(error));
+  };
   useEffect(() => {
     fetchBlogs();
   }, [fetchBlogs]);
@@ -52,7 +73,13 @@ const ViewBlog = ({ fetchBlogs, blogData }) => {
             >
               Author: {blog.author}
             </p>
-            <p> Likes : {blog.likes}</p>
+            <p>Id: {blog._id}</p>
+            <p>
+              {" "}
+              Likes : {blog.likes}
+              {"    "} <button onClick={(e) => updateBlog(blog._id)}>+</button>
+            </p>
+            <button onClick={(e) => deleteblog(blog._id)}>Delete Blog</button>
           </div>
         ))}
       </Blog>

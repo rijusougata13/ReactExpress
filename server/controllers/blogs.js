@@ -17,7 +17,7 @@ const postBlog = async (req, res) => {
   console.log(body);
   const newBlog = new Blog({
     ...body,
-    _id: mongoose.Types.ObjectId(),
+    _uid: mongoose.Types.ObjectId(),
   });
   try {
     await newBlog
@@ -40,11 +40,57 @@ const postBlog = async (req, res) => {
 };
 
 const viewBlog = (req, res) => {
-  res.json({
-    msg: "View Blog",
-  });
+  Blog.findById(req.params.blogId)
+    .then((doc) =>
+      res.status(201).json({
+        message: doc,
+      })
+    )
+    .catch((error) =>
+      res.status(500).json({
+        messsage: error,
+      })
+    );
 };
 
+const updateBlog = async (req, res) => {
+  Blog.findByIdAndUpdate(req.params.blogId, req.body)
+    .then(() =>
+      res.status(201).json({
+        message: "succesfully updated",
+      })
+    )
+    .catch((error) =>
+      res.status(500).json({
+        message: error,
+      })
+    );
+};
+
+const deleteBlog = (req, res) => {
+  const id = req.params.blogId;
+  Blog.findById(id)
+    .then(() => {
+      Blog.remove({ _id: id })
+        .then((result) => {
+          res.status(201).json({
+            message: "succesfully delted",
+          });
+        })
+        .catch((error) => {
+          res.status(500).json({
+            message: error,
+          });
+        });
+    })
+    .catch((error) =>
+      res.status(500).json({
+        message: error,
+      })
+    );
+};
 exports.getBlog = getBlog;
 exports.postBlog = postBlog;
 exports.viewBlog = viewBlog;
+exports.deleteBlog = deleteBlog;
+exports.updateBlog = updateBlog;
