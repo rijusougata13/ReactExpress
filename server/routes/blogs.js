@@ -7,8 +7,9 @@ const {
   deleteBlog,
   updateBlog,
 } = require("../controllers/blogs");
+const verify = require("../controllers/verifyToken");
 
-router.get("/", getBlog);
+router.get("/", verify, getBlog);
 router.post("/", postBlog);
 router.get("/:blogId", viewBlog);
 router.delete("/:blogId", deleteBlog);

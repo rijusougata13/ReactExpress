@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const Blog = require("../models/Blog");
+const verify = require("./verifyToken");
 
 const getBlog = async (req, res) => {
+  // console.log(req.user);
   try {
     const blogs = await Blog.find();
     res.status(201).json(blogs);
