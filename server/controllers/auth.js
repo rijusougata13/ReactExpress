@@ -24,14 +24,28 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
-    return res.send("Email not found");
+    return res.status(401).send("Email not found");
   }
   const validPass = await bcrypt.compare(req.body.password, user.password);
   if (!validPass) return res.status(400).send("!invalid password");
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
   res.header("auth-token", token).send(token);
-  // res.send("Logged In!");
 };
 
+const verify = async (req, res) => {
+  const token = req.header("auth-token");
+  if (!token) return res.status(401).send("access denied");
+
+  try {
+    const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+    req.user = verified;
+    const user = await User.findOne({ _id: verified._id });
+    if (user) return res.status(201).send(user.name);
+    else return res.status(401).send("not found");
+  } catch (err) {
+    res.status(400).send("Invalid Token");
+  }
+};
 exports.login = login;
 exports.register = register;
+exports.verify = verify;
