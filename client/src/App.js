@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Home from "./containers/Home";
 import { Provider } from "react-redux";
 import store from "./redux/store.js";
@@ -17,6 +17,8 @@ function App() {
     "auth-token": token,
   };
   React.useEffect(() => {
+    const tokenData = localStorage.getItem("token");
+    if (tokenData) setToken(tokenData);
     axios
       .get("http://localhost:5000/auth/verify", {
         headers: headers,
@@ -26,7 +28,12 @@ function App() {
           setUser(result.data);
         }
       });
-  }, [token, user]);
+  }, [token]);
+
+  useEffect(() => {
+    localStorage.setItem("token", token);
+  }, [token]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFromValue((prev) => ({
@@ -36,20 +43,38 @@ function App() {
   };
   const login = (e) => {
     e.preventDefault();
-    console.log(formValue);
     axios
       .post("http://localhost:5000/auth/login", {
         email: formValue.email,
         password: formValue.password,
       })
       .then((token) => {
-        console.log(token);
         setToken(token.data);
       });
+  };
+
+  const signup = (e) => {
+    e.preventDefault();
+    axios
+      .post("https://localhost:5000/auth/register", {
+        name: formValue.name,
+        email: formValue.email,
+        password: formValue.password,
+      })
+      .then(() => {
+        alert("succesfully created ");
+      })
+      .catch((err) => alert(err));
+  };
+
+  const logOut = (e) => {
+    setUser((prev) => null);
+    localStorage.clear();
   };
   return (
     <Provider store={store}>
       <>
+        {}
         <div style={{ background: "gray" }}>
           {!user ? (
             <div>
@@ -74,15 +99,15 @@ function App() {
                 ></input>
               </form>
               <button onClick={(e) => login(e)}>login</button>
-              <button>signUp</button>
+              <button onClick={(e) => signup(e)}>signUp</button>
             </div>
           ) : (
             <div>
-              {user} <button> Logout</button>
+              {user} <button onClick={(e) => logOut(e)}> Logout</button>
             </div>
           )}
         </div>
-        <Home />
+        <Home token={token} />
       </>
     </Provider>
   );

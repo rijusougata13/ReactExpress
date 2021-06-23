@@ -2,29 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Blog, Wrapper } from "./styles";
 import { connect } from "react-redux";
-import { fetchBlogs } from "../../redux";
+import { fetchBlogs, fetchUserSuccess } from "../../redux";
 
-// const fetchData = async () => axios.get("http://localhost:5000/blogs");
-
-const ViewBlog = ({ fetchBlogs, blogData }) => {
-  // const [blogs, setBlogs] = useState([{}]);
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     axios.get("http://localhost:5000/blogs").then((res) => {
-  //       // console.log(res.data);
-  //       setBlogs(res.data);
-  //     });
-
-  //     // console.log("hello");
-  //   }, 10000);
-  //   return () => clearInterval(interval);
-  // }, []);
-
+const ViewBlog = ({ fetchBlogs, blogData, userData, fetchUsers }) => {
   const deleteblog = (id) => {
     axios
       .delete(`http://localhost:5000/blogs/${id}`)
       .then(() => {
-        fetchBlogs();
+        fetchBlogs(userData.token);
       })
       .catch((error) => console.log(error));
   };
@@ -36,17 +21,21 @@ const ViewBlog = ({ fetchBlogs, blogData }) => {
         console.log(doc.data.message);
         axios
           .patch(`http://localhost:5000/blogs/${id}`, doc.data.message)
-          .then(() => fetchBlogs());
+          .then(() => fetchBlogs(userData.token));
       })
       .catch((error) => console.log(error));
   };
   useEffect(() => {
-    fetchBlogs();
-  }, [fetchBlogs]);
+    console.log("hello");
+    const token = localStorage.getItem("token");
+    fetchUsers(token);
+    fetchBlogs(userData.token);
+  }, [userData.token]);
 
   return (
     <Wrapper>
       <h1>Blogs</h1>
+      <p style={{ width: "10rem", overflow: "auto" }}> {userData.token}</p>
       <Blog>
         {blogData.blogsList.map((blog) => (
           <div
@@ -90,11 +79,13 @@ const ViewBlog = ({ fetchBlogs, blogData }) => {
 const mapStateToProps = (state) => {
   return {
     blogData: state.blogs,
+    userData: state.users,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchBlogs: () => dispatch(fetchBlogs()),
+    fetchBlogs: (props) => dispatch(fetchBlogs(props)),
+    fetchUsers: (props) => dispatch(fetchUserSuccess(props)),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ViewBlog);

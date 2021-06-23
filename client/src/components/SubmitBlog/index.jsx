@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Wrapper } from "./styles";
 import { connect } from "react-redux";
 import { fetchBlogs } from "../../redux/index";
@@ -23,6 +23,7 @@ const SubmitBlog = (props) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [author, setAuthor] = useState("");
+
   return (
     <Wrapper>
       <Form onSubmit={submitblog}>

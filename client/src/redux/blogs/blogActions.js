@@ -1,9 +1,17 @@
 import axios from "axios";
 
-export const fetchBlogs = () => {
+export const fetchBlogs = (token) => {
   return (dispatch) => {
+    console.log("token : ");
+    console.log(token);
+    const headers = {
+      "Content-Type": "application/json",
+      "auth-token": token,
+    };
     axios
-      .get("http://localhost:5000/blogs")
+      .get("http://localhost:5000/blogs", {
+        headers: headers,
+      })
       .then((response) => {
         // response.data is the users
         const blogs = response.data;
